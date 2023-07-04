@@ -1,0 +1,233 @@
+#include <DHT.h>
+#include <DHT_U.h>
+
+// Constants
+#define DHTPIN1 D1  // What pin we're connected to
+#define DHTPIN2 D2  // What pin we're connected to
+#define DHTPIN3 D3  // What pin we're connected to
+#define DHTPIN4 D4  // What pin we're connected to
+#define DHTPIN5 D5  // What pin we're connected to
+#define DHTPIN6 D6  // What pin we're connected to
+#define DHTTYPE DHT22   // DHT 22  (AM2302)
+DHT dht1(DHTPIN1, DHTTYPE); // Initialize DHT sensor for normal 16mhz Arduino
+DHT dht2(DHTPIN2, DHTTYPE); // Initialize DHT sensor for normal 16mhz Arduino
+DHT dht3(DHTPIN3, DHTTYPE); // Initialize DHT sensor for normal 16mhz Arduino
+DHT dht4(DHTPIN4, DHTTYPE); // Initialize DHT sensor for normal 16mhz Arduino
+DHT dht5(DHTPIN5, DHTTYPE); // Initialize DHT sensor for normal 16mhz Arduino
+DHT dht6(DHTPIN6, DHTTYPE); // Initialize DHT sensor for normal 16mhz Arduino
+
+// Variables to store cumulative values
+float hum1Sum = 0;
+float temp1Sum = 0;
+float hum2Sum = 0;
+float temp2Sum = 0;
+float hum3Sum = 0;
+float temp3Sum = 0;
+float hum4Sum = 0;
+float temp4Sum = 0;
+float hum5Sum = 0;
+float temp5Sum = 0;
+float hum6Sum = 0;
+float temp6Sum = 0;
+float temprata = 0;
+float humrata = 0;
+int count = 0;
+
+void setup()
+{
+  Serial.begin(9600);
+  dht1.begin();
+  dht2.begin();
+  dht3.begin();
+  dht4.begin();
+  dht5.begin();
+  dht6.begin();
+  pinMode(DHTPIN1, INPUT_PULLUP);
+  pinMode(DHTPIN2, INPUT_PULLUP);
+  pinMode(DHTPIN3, INPUT_PULLUP);
+  pinMode(DHTPIN4, INPUT_PULLUP);
+  pinMode(DHTPIN5, INPUT_PULLUP);
+  pinMode(DHTPIN6, INPUT_PULLUP);
+}
+
+void loop()
+{
+  // Read data and store it to variables hum and temp
+  float hum1 = dht1.readHumidity();
+  float temp1 = dht1.readTemperature();
+  float hum2 = dht2.readHumidity();
+  float temp2 = dht2.readTemperature();
+  float hum3 = dht3.readHumidity();
+  float temp3 = dht3.readTemperature();
+  float hum4 = dht4.readHumidity();
+  float temp4 = dht4.readTemperature();
+  float hum5 = dht5.readHumidity();
+  float temp5 = dht5.readTemperature();
+  float hum6 = dht6.readHumidity();
+  float temp6 = dht6.readTemperature();
+
+  // Add current values to cumulative sum
+  hum1Sum += hum1;
+  temp1Sum += temp1;
+  hum2Sum += hum2;
+  temp2Sum += temp2;
+  hum3Sum += hum3;
+  temp3Sum += temp3;
+  hum4Sum += hum4;
+  temp4Sum += temp4;
+  hum5Sum += hum5;
+  temp5Sum += temp5;
+  hum6Sum += hum6;
+  temp6Sum += temp6;
+  count++;
+
+  // Calculate average after 10 readings
+  if (count == 100)
+  {
+float hum1Avg = hum1Sum / count;
+float temp1Avg = temp1Sum / count;
+float hum2Avg = hum2Sum / count;
+float temp2Avg = temp2Sum / count;
+float hum3Avg = hum3Sum / count;
+float temp3Avg = temp3Sum / count;
+float hum4Avg = hum4Sum / count;
+float temp4Avg = temp4Sum / count;
+float hum5Avg = hum5Sum / count;
+float temp5Avg = temp5Sum / count;
+float hum6Avg = hum6Sum / count;
+float temp6Avg = temp6Sum / count;
+
+float selisihhum1 = hum4Avg - hum1Avg;
+float selisihhum2 = hum4Avg - hum2Avg;
+float selisihhum3 = hum4Avg - hum3Avg;
+//float selisih4 = hum4Avg - hum1Avg;
+float selisihhum5 = hum4Avg - hum5Avg;
+float selisihhum6 = hum4Avg - hum6Avg;
+
+//Offset
+hum1Avg = hum1Avg + selisihhum1;
+hum2Avg = hum2Avg + selisihhum2;
+hum3Avg = hum3Avg + selisihhum3;
+hum4Avg = hum4Avg + 0.00;
+hum5Avg = hum5Avg + selisihhum5;
+hum6Avg = hum6Avg + selisihhum6;
+
+float selisihtemp1 = temp4Avg - temp1Avg;
+float selisihtemp2 = temp4Avg - temp2Avg;
+float selisihtemp3 = temp4Avg - temp3Avg;
+//float selisih4 = hum4Avg - hum1Avg;
+float selisihtemp5 = temp4Avg - temp5Avg;
+float selisihtemp6 = temp4Avg - temp6Avg;
+
+
+temp1Avg = temp1Avg + selisihtemp1;
+temp2Avg = temp2Avg + selisihtemp2;
+temp3Avg = temp3Avg + selisihtemp3;
+temp4Avg = temp4Avg + 0.00;
+temp5Avg = temp5Avg + selisihtemp5;
+temp6Avg = temp6Avg + selisihtemp6;
+
+// Rata-rata
+//float temprata = (temp1Avg+temp2Avg+temp3Avg+temp4Avg+temp5Avg+temp6Avg) / 6;
+//float humrata = (hum1Avg+hum2Avg+hum3Avg+hum4Avg+hum5Avg+hum6Avg) / 6;
+
+//Temperature
+Serial.println("Temperatur: ");
+
+Serial.print("Sensor Master (4):");
+Serial.println(temp4Avg);
+Serial.println(" ");
+
+Serial.print("Sensor 1: ");
+Serial.print(temp1Avg);
+Serial.print(" [Offset:(");
+Serial.print(selisihtemp1);
+Serial.println(")]");
+//Serial.println(",");
+//Serial.println(" ");
+
+Serial.print("Sensor 2: ");
+Serial.print(temp2Avg);
+Serial.print(" [Offset:(");
+Serial.print(selisihtemp2);
+Serial.println(")]");
+//Serial.println(",");
+//Serial.println(" ");
+
+Serial.print("Sensor 3: ");
+Serial.print(temp3Avg);
+Serial.print(" [Offset:(");
+Serial.print(selisihtemp3);
+Serial.println(")]");
+//Serial.println(",");
+//Serial.println(" ");
+
+Serial.print("Sensor 5: ");
+Serial.print(temp5Avg);
+Serial.print(" [Offset:(");
+Serial.print(selisihtemp5);
+Serial.println(")]");
+//Serial.println(",");
+//Serial.println(" ");
+
+Serial.print("Sensor 6: ");
+Serial.print(temp6Avg);
+Serial.print(" [Offset:(");
+Serial.print(selisihtemp6);
+Serial.println(")]");
+//Serial.println(",");
+Serial.println(" ");
+
+//Serial.print("Rata-rata: ");
+//Serial.println(temprata);
+
+
+//Kelembapan 
+Serial.println("Kelembapan: ");
+
+Serial.print("Sensor Master (4):");
+Serial.println(hum4Avg);
+Serial.println(" ");
+
+Serial.print("Sensor 1: ");
+Serial.print(hum1Avg);
+Serial.print(" [Offset:(");
+Serial.print(selisihhum1);
+Serial.println(")]");
+//Serial.println(",");
+//Serial.println(" ");
+
+Serial.print("Sensor 2: ");
+Serial.print(hum2Avg);
+Serial.print(" [Offset:(");
+Serial.print(selisihhum2);
+Serial.println(")]");
+//Serial.println(",");
+//Serial.println(" ");
+
+Serial.print("Sensor 3: ");
+Serial.print(hum3Avg);
+Serial.print(" [Offset:(");
+Serial.print(selisihhum3);
+Serial.println(")]");
+//Serial.println(",");
+//Serial.println(" ");
+
+Serial.print("Sensor 5: ");
+Serial.print(hum5Avg);
+Serial.print(" [Offset:(");
+Serial.print(selisihhum5);
+Serial.println(")]");
+//Serial.println(",");
+//Serial.println(" ");
+
+Serial.print("Sensor 6: ");
+Serial.print(hum6Avg);
+Serial.print(" [Offset:(");
+Serial.print(selisihhum6);
+Serial.println(")]");
+//Serial.println(",");
+//Serial.println(" ");
+
+//Serial.print("Rata-rata: ");
+//Serial.println(humrata);
