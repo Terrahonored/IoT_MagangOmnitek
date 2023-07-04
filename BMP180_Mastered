@@ -1,0 +1,518 @@
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BMP085.h>
+
+Adafruit_BMP085 bmp1; // I2C
+Adafruit_BMP085 bmp2; // I2C
+Adafruit_BMP085 bmp3; // I2C
+Adafruit_BMP085 bmp4; // I2C
+Adafruit_BMP085 bmp5; // I2C
+//Adafruit_BMP085 bmp6; // I2C
+//Adafruit_BMP085 bmp7; // I2C
+
+float suhu1,suhu2,suhu3,suhu4,suhu5,suhu6,suhu7;
+int p1,p2,p3,p4,p5,p6,p7;
+
+float presSum = 0;
+float tempSum = 0;
+float altSum = 0;
+float SpresSum = 0;
+float RaltSum = 0;
+
+float pres2Sum = 0;
+float temp2Sum = 0;
+float alt2Sum = 0;
+float Spres2Sum = 0;
+float Ralt2Sum = 0;
+
+float pres3Sum = 0;
+float temp3Sum = 0;
+float alt3Sum = 0;
+float Spres3Sum = 0;
+float Ralt3Sum = 0;
+
+float pres4Sum = 0;
+float temp4Sum = 0;
+float alt4Sum = 0;
+float Spres4Sum = 0;
+float Ralt4Sum = 0;
+
+float tempAvg = 0;
+float presAvg = 0;
+float altAvg = 0;
+float SpresAvg = 0;
+float RaltAvg = 0;
+
+float pres = 0;
+float temp = 0;
+float alt = 0;
+float Spres = 0;
+float Ralt = 0;
+
+float  tempAvgmas
+float  presAvgmas
+float  altAvgmas
+float  SpresAvgmas
+float  RaltAvgmas
+  
+float  temp2off
+float  pres2off 
+float  alt2off 
+float  Spres2off
+float  Ralt2off
+
+float  temp3off
+float  pres3off 
+float  alt3off 
+float  Spres3off
+float  Ralt3off
+
+float  temp4off
+float  pres4off 
+float  alt4off 
+float  Spres4off
+float  Ralt4off
+
+float  temp5off
+float  pres5off 
+float  alt5off 
+float  Spres5off
+float  Ralt5off
+
+
+// Select I2C BUS
+void TCA9548A(uint8_t bus){
+  Wire.beginTransmission(0x70);  // TCA9548A address
+  Wire.write(1 << bus);          // send byte to select bus
+  Wire.endTransmission();
+}
+
+void computebmp(Adafruit_BMP085 bmp, int bus) {
+  TCA9548A (bus);
+
+  for (int i=0; i<100; i++) {
+  
+  pres = bmp.readPressure() / 100.0F;
+  temp = bmp.readTemperature();
+  alt = bmp.readAltitude();
+  Spres = bmp.readSealevelPressure();
+  Ralt = bmp.readAltitude(101500);
+
+  presSum += pres;
+  tempSum += temp;
+  altSum += alt;
+  SpresSum += Spres;
+  RaltSum += Ralt;
+
+   }
+  
+tempAvg = tempSum / 100;
+presAvg = presSum / 100;
+altAvg = altSum / 100;
+SpresAvg = SpresSum / 100;
+RaltAvg = RaltSum / 100;
+
+
+
+}
+
+void setup() {
+  Serial.begin(115200);
+  
+  // Start I2C communication with the Multiplexer
+  Wire.begin();
+
+  // Init sensor on bus number 2
+  TCA9548A(0);
+  if (!bmp1.begin()) {
+//    Serial.println("Could not find a valid BME280 sensor on bus 0, check wiring!");
+    while (1);
+  }
+//  Serial.println();
+  
+  // Init sensor on bus number 3
+  TCA9548A(1);
+  if (!bmp2.begin()) {
+//    Serial.println("Could not find a valid BME280 sensor on bus 1, check wiring!");
+    while (1);
+  }
+//  Serial.println();
+  
+  // Init sensor on bus number 4
+  TCA9548A(2);
+  if (!bmp3.begin()) {
+//    Serial.println("Could not find a valid BME280 sensor on bus 2, check wiring!");
+    while (1);
+  }
+//  Serial.println();
+  
+  // Init sensor on bus number 5
+  TCA9548A(3);
+  if (!bmp4.begin()) {
+//    Serial.println("Could not find a valid BME280 sensor on bus 3, check wiring!");
+    while (1);
+  }
+//  Serial.println();
+
+//  // Init sensor on bus number 5
+//  TCA9548A(4);
+//  if (!bmp5.begin()) {
+////    Serial.println("Could not find a valid BME280 sensor on bus 4, check wiring!");
+//    while (1);
+//  }
+////  Serial.println();
+//
+//  // Init sensor on bus number 5
+//  TCA9548A(5);
+//  if (!bmp6.begin()) {
+////    Serial.println("Could not find a valid BME280 sensor on bus 5, check wiring!");
+//    while (1);
+//  }
+////  Serial.println();
+//
+//  // Init sensor on bus number 5
+//  TCA9548A(6);
+//  if (!bmp7.begin()) {
+////    Serial.println("Could not find a valid BME280 sensor on bus 6, check wiring!");
+//    while (1);
+//  }
+////  Serial.println();
+}
+
+void loop() { 
+  //Print values for sensor 1
+
+computebmp(bmp1, 0);
+
+  // OFFSET
+
+  tempAvgmas = tempAvg + 0.40;
+  presAvgmas = presAvg + 0.0;
+  altAvgmas = altAvg - 11.64;
+  SpresAvgmas = SpresAvg + 0.00;
+  RaltAvgmas = RaltAvg + 0.00;
+  
+
+  Serial.print("Sensor number on bus");
+  Serial.println(" 1");
+  Serial.print("Temperature = ");
+  //Serial.print(bmp.readTemperature());
+  Serial.print(tempAvg);
+  Serial.println(" C");
+  
+  Serial.print("Pressure = ");
+  //Serial.print(bmp.readPressure() / 100.0F);
+  Serial.print(presAvg);
+  Serial.println(" hPa");
+
+  Serial.print("Altitude = "); // Sensor Ketinggian permukaan bumi
+  //Serial.print(bmp.readAltitude());
+  Serial.print(altAvg);
+  Serial.println(" meters");
+
+  Serial.print("Pressure at sealevel (calculated) = ");  // Sensor Tekanan Laut
+  //Serial.print(bmp.readSealevelPressure());
+  Serial.print(SpresAvg);
+  Serial.println(" Pa");
+
+  Serial.print("Real altitude = ");
+  //Serial.print(bmp.readAltitude(101500)); 
+  Serial.print(RaltAvg);
+  Serial.println(" meters");
+
+  tempSum = 0;
+  presSum = 0;
+  altSum = 0;
+  SpresSum = 0;
+  RaltSum = 0;
+
+  Serial.println();
+
+  
+computebmp(bmp2, 1);
+  
+  // OFFSET
+
+  temp2off  = tempAvgmas - tempAvg
+  pres2off  = presAvgmas - presAvg
+  alt2off   = altAvgmas - altAvg
+  Spres2off = SpresAvgmas - SpresAvg
+  Ralt2off  = RaltAvgmas - RaltAvg
+
+  tempAvg = tempAvg + temp2off;
+  presAvg = presAvg + pres2off;
+  altAvg = altAvg + alt2off;
+  SpresAvg = SpresAvg + Spres2off;
+  RaltAvg = RaltAvg + Ralt2off;
+  
+
+  Serial.print("Sensor number on bus");
+  Serial.println(" 2");
+  Serial.print("Temperature = ");
+  //Serial.print(bmp.readTemperature());
+  Serial.print(tempAvg);
+  Serial.print(" C");
+  Serial.print(" [Offset:(");
+  Serial.print(temp2off);
+  Serial.println(")]");
+
+  
+  Serial.print("Pressure = ");
+  //Serial.print(bmp.readPressure() / 100.0F);
+  Serial.print(presAvg);
+  Serial.print(" hPa");
+  Serial.print(" [Offset:(");
+  Serial.print(pres2off);
+  Serial.println(")]");
+
+
+  Serial.print("Altitude = "); // Sensor Ketinggian permukaan bumi
+  //Serial.print(bmp.readAltitude());
+  Serial.print(altAvg);
+  Serial.print(" meters");
+  Serial.print(" [Offset:(");
+  Serial.print(alt2off);
+  Serial.println(")]");
+
+
+  Serial.print("Pressure at sealevel (calculated) = ");  // Sensor Tekanan Laut
+  //Serial.print(bmp.readSealevelPressure());
+  Serial.print(SpresAvg);
+  Serial.print(" Pa");
+  Serial.print(" [Offset:(");
+  Serial.print(Spres2off);
+  Serial.println(")]");
+
+
+  Serial.print("Real altitude = ");
+  //Serial.print(bmp.readAltitude(101500)); 
+  Serial.print(RaltAvg);
+  Serial.print(" meters");
+  Serial.print(" [Offset:(");
+  Serial.print(Ralt2off);
+  Serial.println(")]");
+
+
+  tempSum = 0;
+  presSum = 0;
+  altSum = 0;
+  SpresSum = 0;
+  RaltSum = 0;
+
+  Serial.println();
+
+  
+computebmp(bmp3, 2);
+  
+  // OFFSET
+
+  temp3off  = tempAvgmas - tempAvg
+  pres3off  = presAvgmas - presAvg
+  alt3off   = altAvgmas - altAvg
+  Spres3off = SpresAvgmas - SpresAvg
+  Ralt3off  = RaltAvgmas - RaltAvg
+
+  tempAvg = tempAvg + temp3off;
+  presAvg = presAvg + pres3off;
+  altAvg = altAvg + alt3off;
+  SpresAvg = SpresAvg + Spres3off;
+  RaltAvg = RaltAvg + Ralt3off;
+  
+
+  Serial.print("Sensor number on bus");
+  Serial.println(" 3");
+  Serial.print("Temperature = ");
+  //Serial.print(bmp.readTemperature());
+  Serial.print(tempAvg);
+  Serial.print(" C");
+  Serial.print(" [Offset:(");
+  Serial.print(temp3off);
+  Serial.println(")]");
+
+  
+  Serial.print("Pressure = ");
+  //Serial.print(bmp.readPressure() / 100.0F);
+  Serial.print(presAvg);
+  Serial.print(" hPa");
+  Serial.print(" [Offset:(");
+  Serial.print(pres3off);
+  Serial.println(")]");
+
+
+  Serial.print("Altitude = "); // Sensor Ketinggian permukaan bumi
+  //Serial.print(bmp.readAltitude());
+  Serial.print(altAvg);
+  Serial.print(" meters");
+  Serial.print(" [Offset:(");
+  Serial.print(alt3off);
+  Serial.println(")]");
+
+
+  Serial.print("Pressure at sealevel (calculated) = ");  // Sensor Tekanan Laut
+  //Serial.print(bmp.readSealevelPressure());
+  Serial.print(SpresAvg);
+  Serial.print(" Pa");
+  Serial.print(" [Offset:(");
+  Serial.print(Spres3off);
+  Serial.println(")]");
+
+
+  Serial.print("Real altitude = ");
+  //Serial.print(bmp.readAltitude(101500)); 
+  Serial.print(RaltAvg);
+  Serial.print(" meters");
+  Serial.print(" [Offset:(");
+  Serial.print(Ralt3off);
+  Serial.println(")]");
+
+
+  tempSum = 0;
+  presSum = 0;
+  altSum = 0;
+  SpresSum = 0;
+  RaltSum = 0;
+
+  Serial.println();
+
+  
+computebmp(bmp4, 3);
+  
+  // OFFSET
+
+  temp4off  = tempAvgmas - tempAvg
+  pres4off  = presAvgmas - presAvg
+  alt4off   = altAvgmas - altAvg
+  Spres4off = SpresAvgmas - SpresAvg
+  Ralt4off  = RaltAvgmas - RaltAvg
+
+  tempAvg = tempAvg + temp4off;
+  presAvg = presAvg + pres4off;
+  altAvg = altAvg + alt4off;
+  SpresAvg = SpresAvg + Spres4off;
+  RaltAvg = RaltAvg + Ralt4off;
+
+  Serial.print("Sensor number on bus");
+  Serial.println(" 4");
+  Serial.print("Temperature = ");
+  //Serial.print(bmp.readTemperature());
+  Serial.print(tempAvg);
+  Serial.print(" C");
+  Serial.print(" [Offset:(");
+  Serial.print(temp4off);
+  Serial.println(")]");
+
+  
+  Serial.print("Pressure = ");
+  //Serial.print(bmp.readPressure() / 100.0F);
+  Serial.print(presAvg);
+  Serial.print(" hPa");
+  Serial.print(" [Offset:(");
+  Serial.print(pres4off);
+  Serial.println(")]");
+
+
+  Serial.print("Altitude = "); // Sensor Ketinggian permukaan bumi
+  //Serial.print(bmp.readAltitude());
+  Serial.print(altAvg);
+  Serial.print(" meters");
+  Serial.print(" [Offset:(");
+  Serial.print(alt4off);
+  Serial.println(")]");
+
+  Serial.print("Pressure at sealevel (calculated) = ");  // Sensor Tekanan Laut
+  //Serial.print(bmp.readSealevelPressure());
+  Serial.print(SpresAvg);
+  Serial.print(" Pa");
+  Serial.print(" [Offset:(");
+  Serial.print(Spres4off);
+  Serial.println(")]");
+
+  Serial.print("Real altitude = ");
+  //Serial.print(bmp.readAltitude(101500)); 
+  Serial.print(RaltAvg);
+  Serial.print(" meters");
+  Serial.print(" [Offset:(");
+  Serial.print(Ralt4off);
+  Serial.println(")]");
+
+  tempSum = 0;
+  presSum = 0;
+  altSum = 0;
+  SpresSum = 0;
+  RaltSum = 0;
+
+  Serial.println();
+
+ computebmp(bmp5, 4);
+  
+  // OFFSET
+
+  temp5off  = tempAvgmas - tempAvg
+  pres5off  = presAvgmas - presAvg
+  alt5off   = altAvgmas - altAvg
+  Spres5off = SpresAvgmas - SpresAvg
+  Ralt5off  = RaltAvgmas - RaltAvg
+
+  tempAvg = tempAvg + temp5off;
+  presAvg = presAvg + pres5off;
+  altAvg = altAvg + alt5off;
+  SpresAvg = SpresAvg + Spres5off;
+  RaltAvg = RaltAvg + Ralt5off;
+  
+
+  Serial.print("Sensor number on bus");
+  Serial.println(" 4");
+  Serial.print("Temperature = ");
+  //Serial.print(bmp.readTemperature());
+  Serial.print(tempAvg);
+  Serial.print(" C");
+  Serial.print(" [Offset:(");
+  Serial.print(temp5off);
+  Serial.println(")]");
+  
+  Serial.print("Pressure = ");
+  //Serial.print(bmp.readPressure() / 100.0F);
+  Serial.print(presAvg);
+  Serial.print(" hPa");
+  Serial.print(" [Offset:(");
+  Serial.print(pres5off);
+  Serial.println(")]");
+
+  Serial.print("Altitude = "); // Sensor Ketinggian permukaan bumi
+  //Serial.print(bmp.readAltitude());
+  Serial.print(altAvg);
+  Serial.print(" meters");
+  Serial.print(" [Offset:(");
+  Serial.print(alt5off);
+  Serial.println(")]");
+
+  Serial.print("Pressure at sealevel (calculated) = ");  // Sensor Tekanan Laut
+  //Serial.print(bmp.readSealevelPressure());
+  Serial.print(SpresAvg);
+  Serial.print(" Pa");
+  Serial.print(" [Offset:(");
+  Serial.print(Spres5off);
+  Serial.println(")]");
+
+  Serial.print("Real altitude = ");
+  //Serial.print(bmp.readAltitude(101500)); 
+  Serial.print(RaltAvg);
+  Serial.print(" meters");
+  Serial.print(" [Offset:(");
+  Serial.print(Ralt5off);
+  Serial.println(")]");
+
+  tempSum = 0;
+  presSum = 0;
+  altSum = 0;
+  SpresSum = 0;
+  RaltSum = 0;
+
+  
+//  printValues(bmp5, 4);
+//  printValues(bmp6, 5);
+//  printValues(bmp7, 6);
+  Serial.println(" ");
+
+  delay(1000);
+}
